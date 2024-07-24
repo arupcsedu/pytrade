@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import pandas as pd
+import yfinance as yf
 #from matplotlib import plt
 from pylab import mpl, plt
 plt.style.use('seaborn-v0_8-whitegrid')
@@ -20,7 +21,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 
 import os
-
+'''
 def load_files():
     for dirname, _, filenames in os.walk('/u/djy8hg/Project/arupcsedu/pytrade/content'):
         for i, filename in enumerate(filenames):
@@ -59,6 +60,8 @@ def plot_data():
     df_ibm.info()
 
 
+'''
+
 
 # function to create train, test data given stock data and sequence length
 def load_data(stock, look_back):
@@ -82,12 +85,32 @@ def load_data(stock, look_back):
     return [x_train, y_train, x_test, y_test]
 
 def scale_data():
-    dates = pd.date_range('2010-01-02','2017-10-11',freq='B')
+
+    msft = yf.Ticker("AMD")
+
+    # get all stock info
+    msft.info
+
+    # get historical market data
+    hist = msft.history(period="1mo")
+    print(hist.tail())
+
+    tickers_list = ['AMD']
+
+    data_list = yf.download(tickers_list,'2010-01-02')['Close']
+ 
+    df_ibm=pd.DataFrame(data_list)
+    print(df_ibm.tail())
+
+    dates = pd.date_range('2010-01-02','2024-07-22',freq='B')
     df1=pd.DataFrame(index=dates)
-    df_ibm=pd.read_csv("/u/djy8hg/Project/arupcsedu/pytrade/content/Data/Stocks/ibm.us.txt", parse_dates=True, index_col=0)
+    #df_ibm=pd.read_csv("/u/djy8hg/Project/arupcsedu/pytrade/content/Data/Stocks/ibm.us.txt", parse_dates=True, index_col=0)
+
+
     df_ibm=df1.join(df_ibm)
     df_ibm=df_ibm[['Close']]
-
+ 
+    print(df_ibm.tail())
 
     
     df_ibm=df_ibm.fillna(method='ffill')
@@ -95,7 +118,7 @@ def scale_data():
     scaler = MinMaxScaler(feature_range=(-1, 1))
     df_ibm['Close'] = scaler.fit_transform(df_ibm['Close'].values.reshape(-1,1))
 
-    print(df_ibm.head())
+ 
     return [df_ibm, scaler] 
 
 def load_data_call():
@@ -238,10 +261,9 @@ def train_load():
     plt.show()
 
 if __name__ == "__main__":
-    load_files()
+    #load_files()
     #stocks_data()
-    read_data()
+    #read_data()
     #plot_data()
     train_load()
-
 
